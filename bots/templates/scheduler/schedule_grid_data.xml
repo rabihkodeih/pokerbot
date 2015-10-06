@@ -1,0 +1,33 @@
+<?xml version ="1.0" encoding="utf-8"?>
+<rows>
+  <page>{{page}}</page>
+  <total>{{totalPages}}</total>
+  <records>{{totalRecords}}</records>
+
+  {% for rec in grid %}
+	   <row id='{{rec.id}}'>
+	       <cell><![CDATA[{% spaceless %}
+	            <button class="row_btn row_btn_enable" onclick="enableDisableShcedule(null, '{{rec.id}}', event)">{% if rec.f_enabled = 1 %}Disable{%else%}Enable{%endif%}</button>
+	        	<button class="row_btn row_btn_modify" onclick="createModifySchedule('{{rec.id}}', event)">Modify</button>
+	        	<button class="row_btn row_btn_delete" onclick="enableDisableShcedule('delete', ['{{rec.id}}'], event)">Delete</button>
+	            {% endspaceless %}]]></cell>
+	       <cell>{{rec.f_name}}</cell>
+	       <cell>{{rec.f_from_time}}</cell>
+	       <cell>{{rec.f_to_time}}</cell>
+	       {% spaceless %}
+	        <cell>
+	            <![CDATA[{% spaceless %}
+	            {% if rec.f_enabled = 1 %}<img src="/static/images/verified.png"/>
+	            {% else %}<img src="/static/images/unverified.png"/>
+	            {% endif %}
+	            {% endspaceless %}]]>
+	        </cell>
+	       {% endspaceless %}
+	       <cell>{{rec.f_num_bots}}</cell>
+	       <cell>{{rec.f_tables}}</cell>
+	       <cell>{{rec.f_nicks}}</cell>
+	       
+	       <cell>{{rec.f_enabled}}</cell>
+	  </row>
+ {% endfor %}
+ </rows>

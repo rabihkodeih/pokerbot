@@ -1,0 +1,30 @@
+{% load macros %}
+
+{% macro renderSeat pSeat %}
+   <div class="seat">
+     <div>
+      <img src="/static/images/cards/{{pSeat.f_hole1}}.1.png"/>
+      <img src="/static/images/cards/{{pSeat.f_hole2}}.1.png"/>
+     </div>
+     {{pSeat.f_nick}} ({{pSeat.f_strategy}})
+   </div>
+{% endmacro %}
+        
+	{% for name, seats in monitoredTables.items %}
+	 <div class="monitored-table">
+	  <div class="table-name"> {{name}} </div>
+	  <ul>
+	   {% for seat in seats %}
+	     {% if seat %}
+	       <li> {% usemacro renderSeat seat %}</li>
+	     {% else %}
+	       <li class="empty-seat">&nbsp;</li>
+	     {% endif %}
+	   {% endfor %}
+	  </ul>
+	  
+	  <div class="toolbar">
+	   <button class="monitor_btn" onclick="stopMonitorTable('{{name}}')">Stop Monitoring</button>&nbsp;
+	  </div>
+	 </div>
+	{% endfor %}

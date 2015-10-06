@@ -1,0 +1,496 @@
+{% load macros %}
+
+<br/>
+<table id="botTableGrid_{{POST.id}}"><tr><td/></tr></table> 
+<div id="actionBar_{{POST.id}}"></div>
+<br/>
+<br>
+<table id="botTourGrid_{{POST.id}}"><tr><td/></tr></table> 
+<div id="tourActionBar_{{POST.id}}"></div>
+<br/>
+
+<script type="text/javascript">
+var botTableId = "botTableGrid_{{POST.id}}"
+var botTableActionBar = "actionBar_{{POST.id}}"
+
+$(function(){ 
+  botTablesGrid = $("#"+botTableId).jqGrid({
+    url:'/bots/home/bot_table_grid_data?{% spaceless %} {% for k,v in POST.items %}&{{k}}={{v|urlencode}}{% endfor %}{%endspaceless%}',
+    datatype: 'xml',
+    mtype: 'GET',
+    colNames:['Actions', 'Table Name', 'Enabled','Strategy','Status', 'MIN BB', 'MAX BB', 'Ratio to Exit', 'Last Enter Time', 'Last Exit Time', 'EnabledHidden'],
+    colModel :[
+      {name:'act', index:'act', width:210, align:'center'}, 
+      {name:'tableName', index:'f_table_name', width:150, align:'center'}, 
+      {name:'enabled', index:'f_enabled', width:70, align:'center'},
+      {name:'strategy', index:'f_strategy', width:80, align:'center'},
+      {name:'status', index:'f_status', width:50, align:'center'},
+      {name:'minBB', index:'f_min_bb', width:60, align:'center'},
+      {name:'maxBB', index:'f_max_bb', width:60, align:'center'},
+      {name:'bbExit', index:'f_bb_exit', width:90, align:'center'},
+      {name:'lastEnterTime', index:'f_last_enter_time', width:200, align:'center'},
+      {name:'lastExitTime', index:'f_last_exit_time', width:200, align:'center'},
+      {name:'enabledStatus', index:'f_enabled', hidden:true},
+    ],
+    pager: '#'+botTableActionBar,
+    rowNum:5,
+    rowList:[5, 10, 25],
+    sortname: 'f_table_name',
+    sortorder: 'asc',
+    viewrecords: true,
+    gridview: true,
+    caption: '',
+//    multiselect:true,
+    gridComplete: processAfterGridLoad
+  })
+
+//adding the bottom bar buttons
+$("#"+botTableId)
+    .navGrid("#"+botTableActionBar,{edit:false,add:false,del:false,search:false, refresh:false, cloneToTop:true})
+    .navButtonAdd('#'+botTableActionBar,
+			    {
+				   caption:"Assign new Table", 
+				   title: "Add a new Table for the bot to play on",
+				   buttonicon:"ui-icon-document-b", 
+				   onClickButton: function()
+						   { 
+					   createModifyBotTable(null, null);
+						   }, 
+				   position:"last"
+				});
+}); 
+
+
+    var botTourId = "botTourGrid_{{POST.id}}"
+	var botTourActionBar = "tourActionBar_{{POST.id}}"
+
+	$(function(){ 
+	  botTourGrid = $("#"+botTourId).jqGrid({
+	    url:'/bots/home/bot_tournament_grid_data?{% spaceless %} {% for k,v in POST.items %}&{{k}}={{v|urlencode}}{% endfor %}{%endspaceless%}',
+	    datatype: 'xml',
+	    mtype: 'GET',
+	    colNames:['Actions', 'Tournament Name', 'Enabled','Strategy','# Rebuys', 'Add On', 'EnabledHidden'],
+	    colModel :[
+	      {name:'act', index:'act', width:210, align:'center'}, 
+	      {name:'tableName', index:'f_table_name', width:180, align:'center'}, 
+	      {name:'enabled', index:'f_enabled', width:80, align:'center'},
+	      {name:'strategy', index:'f_strategy', width:100, align:'center'},
+	      {name:'rebuy', index:'f_rebuy', width:100, align:'center'},
+	      {name:'addon', index:'f_addon', width:80, align:'center'},
+	      {name:'enabledStatus', index:'f_enabled', hidden:true},
+	    ],
+	    pager: '#'+botTourActionBar,
+	    rowNum:5,
+	    rowList:[5, 10, 25],
+	    sortname: 'f_table_name',
+	    sortorder: 'asc',
+	    viewrecords: true,
+	    gridview: true,
+	    caption: '',
+//	    multiselect:true,
+	    gridComplete: processAfterGridLoad
+	  })
+
+	//adding the bottom bar buttons
+	$("#"+botTourId)
+	    .navGrid("#"+botTourActionBar,{edit:false,add:false,del:false,search:false, refresh:false, cloneToTop:true})
+	    .navButtonAdd('#'+botTourActionBar,
+				    {
+					   caption:"Assign new Tournament", 
+					   title: "Add a new Tournament for the bot to play on",
+					   buttonicon:"ui-icon-document-b", 
+					   onClickButton: function()
+							   { 
+						   createModifyBotTournament(null, null);
+							   }, 
+					   position:"last"
+					});
+	}); 
+
+
+/*
+ * this method is defined in the original grid html
+function processAfterGridLoad()
+{
+// $(".row_btn_enable").button({icons: {primary: "ui-icon-stop"},text: true})
+}
+*/
+
+/**
+ * Checks if bot enabled then disable it and vice versa
+ */
+function enableDisableBotTable(id, e, op)
+{
+	 var row = botTablesGrid.getRowData(id);
+	 var confirmed = false;
+	 var mode = null;
+
+	//console.debug("id:"+id+", "+ JSON.stringify(row));
+	
+	 if(op == 'delete')
+	 {
+		  confirmed = confirm("Are you sure you want to delete the assigned table '"+row.tableName+"' to this bot?")
+		  mode = "delete"
+	 }
+	 else
+	 if(row.enabledStatus == "1")
+	 {
+	  confirmed = confirm("If you disable table: "+row.tableName+" bot will leave the table.\n\nAre you sure you want to disable it?")
+	  mode = "disable"
+	 }
+	 else
+	 {
+	  confirmed = confirm("Are you sure you want to enable table: "+row.tableName+"?")
+	  mode = "enable"
+	 }
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/home/enable_bottable",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+id+"&mode="+mode
+	        }
+	       ).done(function(rs){if(rs.success) botTablesGrid.trigger("reloadGrid"); else alert("Couldn't save");})
+	 }
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+function enableDisableBotTournament(id, e, op)
+{
+	 var row = botTourGrid.getRowData(id);
+	 var confirmed = false;
+	 var mode = null;
+
+	//console.debug("id:"+id+", "+ JSON.stringify(row));
+	
+	 if(op == 'delete')
+	 {
+		  confirmed = confirm("Are you sure you want to delete the assigned tournament '"+row.tableName+"' to this bot?")
+		  mode = "delete"
+	 }
+	 else
+	 if(row.enabledStatus == "1")
+	 {
+	  confirmed = confirm("If you disable tournament: "+row.tableName+" bot will leave the tournament.\n\nAre you sure you want to disable it?")
+	  mode = "disable"
+	 }
+	 else
+	 {
+	  confirmed = confirm("Are you sure you want to enable tournament: "+row.tableName+"?")
+	  mode = "enable"
+	 }
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/home/enable_bottournament",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+id+"&mode="+mode
+	        }
+	       ).done(function(rs){if(rs.success) botTourGrid.trigger("reloadGrid"); else alert("Couldn't save");})
+	 }
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+</script>
+
+<!-- New/Modify bot form and scripts -->
+<div id="edit-table-form-div" title="Edit Bot Table" style="display:none" >
+	<form id="bot-table-form">
+		  <table>
+		   <tr>
+		    <td><label for="tableName">Table Name</label></td><td><input name="tableName" id="tableName" title="To assign more than one table enter them as comma separated list of tables" /></td>
+		   </tr>
+
+		   <tr>
+		    <td><label for="enabledStatus">Enabled</label></td>
+		     <td>
+		      	<div id="statusSet">
+					<input type="radio" id="statusEnabled" name="enabledStatus" value="1"/><label for="statusEnabled">Enabled</label>
+					<input type="radio" id="statusDisabled" name="enabledStatus" value="0" /><label for="statusDisabled">Disabled</label>
+				</div>
+		     </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="strategy">Strategy</label></td>
+		    <td>
+		     <select name="strategy">
+		      <option value=""></option>
+		      <option value="tight-xp">Tight-XP</option>
+		      <option value="loose-xp">Loose-XP</option>
+		      <option value="tournament">Tournament</option>
+		      <option value="tight-xp-stats">Tight-XP Stats</option>
+		      <option value="loose-xp-stats">Loose-XP Stats</option>
+		      <option value="tournament-stats">Tournament Stats</option>
+		      <option value="loose">Loose</option>
+		      <option value="tight">Tight</option>
+		      <option value="smart">Smart</option>
+		      <option value="random">Test: Random</option>
+		      <option value="betcall">Test: BetCall</option>
+		      <option value="checkcall">Test: CheckCall</option>
+		      <option value="allin">Test: AllIN</option>
+		     </select>
+		    </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="minBB">MIN BB</label></td><td><input name="minBB" id="minBB"/></td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="maxBB">MAX BB</label></td><td><input name="maxBB" id="maxBB"/></td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="bbExit">Exit On x times Intial stack</label></td><td><input name="bbExit" id="bbExit"/></td>
+		   </tr>
+		  </table>
+		  <input type="hidden" name="id" id="id"/>
+		  <input type="hidden" name="botId" value="{{POST.id}}"/>
+	</form>
+	<div id="botTableFormError"/>
+</div>
+
+
+<div id="edit-tournament-form-div" title="Edit Bot Tournament" style="display:none" >
+	<form id="bot-tournament-form">
+		  <table>
+		   <tr>
+		    <td><label for="tableName">Tournament Name</label></td><td><input name="tableName" id="tableName" title="To assign more than one table enter them as comma separated list of tables" /></td>
+		   </tr>
+
+		   <tr>
+		    <td><label for="enabledStatus">Enabled</label></td>
+		     <td>
+		      	<div id="statusSet">
+					<input type="radio" id="statusEnabled" name="enabledStatus" value="1"/><label for="statusEnabled">Enabled</label>
+					<input type="radio" id="statusDisabled" name="enabledStatus" value="0" /><label for="statusDisabled">Disabled</label>
+				</div>
+		     </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="strategy">Strategy</label></td>
+		    <td>
+		     <select name="strategy">
+		      <option value=""></option>
+		      <option value="tight-xp">Tight-XP</option>
+		      <option value="loose-xp">Loose-XP</option>
+		      <option value="tournament">Tournament</option>
+		      <option value="tight-xp-stats">Tight-XP Stats</option>
+		      <option value="loose-xp-stats">Loose-XP Stats</option>
+		      <option value="tournament-stats">Tournament Stats</option>
+		      <option value="loose">Loose</option>
+		      <option value="tight">Tight</option>
+		      <option value="smart">Smart</option>
+		      <option value="random">Test: Random</option>
+		      <option value="betcall">Test: BetCall</option>
+		      <option value="checkcall">Test: CheckCall</option>
+		      <option value="allin">Test: AllIN</option>
+		     </select>
+		    </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="rebuy">Rebuys</label></td><td><input name="rebuy" id="rebuy"/></td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="addOn">AddOn</label></td>
+		     <td>
+		      	<div id="addOn">
+					<input type="radio" id="addOnEnabled" name="addOn" value="1"/><label for="addOnEnabled">Enabled</label>
+					<input type="radio" id="addOnDisabled" name="addOn" value="0" /><label for="addOnDisabled">Disabled</label>
+				</div>
+		     </td>
+		   </tr>
+
+		  </table>
+		  <input type="hidden" name="id" id="id"/>
+		  <input type="hidden" name="botId" value="{{POST.id}}"/>
+	</form>
+	<div id="botTournamentFormError"/>
+</div>
+<script>
+
+$("#bot-table-form").validate({
+	rules: {
+		minBB: {number:true, min:0},
+		maxBB: {number:true, min:0},
+		bbExit: {number:true, min:0},
+		tableName: "required", enabledStatus: "required"
+		
+	},
+	messages: 
+	{
+		minBB: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		maxBB: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		bbExit: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		tableName: "Required table name",
+		enabledStatus: "Required Enabled/Disabled"
+	},
+	submitHandler: function(){return false;},
+	errorLabelContainer: "#botTableFormError",
+	wrapper: "li"
+});
+
+var botTableForm = $("#bot-table-form");
+
+var botTableDialog = $("#edit-table-form-div" ).dialog({
+	resizable: false,
+	height:450, width: 400,
+	modal: true,
+	autoOpen: false,
+	buttons: {
+		"Save": function() 
+		{ 
+			if(!botTableForm.valid())
+				 return;
+			
+			 $.ajax({
+		         url: "/bots/home/save_bottable",
+		         type: "POST",
+		         dataType: "JSON",
+		         data: "&csrfmiddlewaretoken={{csrf_token}}&"+botTableForm.formSerialize()
+		        }
+		       ).done(function(rs){if(rs.success) {botTableDialog.dialog("close"); botTablesGrid.trigger("reloadGrid"); }else alert("Couldn't save");})
+
+		},
+		Cancel: function() 
+		{
+			$( this ).dialog( "close" );
+			botTableForm.resetForm();
+		}
+	}
+});
+
+function createModifyBotTable(botTblId, e)
+{
+	botTableForm.resetForm();
+	
+	botTableFormCtx = $("#bot-table-form")
+	
+	if(botTblId != '')
+    {
+		//fill the form objects
+		var row = botTablesGrid.getRowData(botTblId);
+		
+		$.each(row, function(e, v){$("#"+e, botTableFormCtx).val(v);})
+		$("input[name='enabledStatus'][value='"+row.enabledStatus+"']", botTableFormCtx).selected(true)
+		$("select[name='moneyType'] > option[value='"+row.moneyType+"']", botTableFormCtx).selected(true)
+		$("select[name='strategy'] > option[value='"+row.strategy+"']", botTableFormCtx).selected(true)
+		
+		$("#id", botTableFormCtx).val(botTblId)
+    }
+	
+	botTableDialog.dialog("open");
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+
+var botTournamentForm = $("#bot-tournament-form");
+
+$("#bot-tournament-form").validate({
+	rules: {
+		rebuy: {number:true, min:0, required:true},
+		tableName: "required", enabledStatus: "required", addOn: "required"
+		
+	},
+	messages: 
+	{
+		rebuy: {
+			 required: "Required rebuy number",
+			 number: "Invalid Number for MIN BB",
+			 min: "Rebuy should be bigger or equals to 0"
+			},
+		tableName: "Required table name",
+		enabledStatus: "Required Enabled/Disabled",
+		addOn: "Required AddOn"
+	},
+	submitHandler: function(){return false;},
+	errorLabelContainer: "#botTournamentFormError",
+	wrapper: "li"
+});
+
+var botTournamentDialog = $("#edit-tournament-form-div" ).dialog({
+	resizable: false,
+	height:450, width: 400,
+	modal: true,
+	autoOpen: false,
+	buttons: {
+		"Save": function() 
+		{ 
+			if(!botTournamentForm.valid())
+				 return;
+			
+			 $.ajax({
+		         url: "/bots/home/save_bottournament",
+		         type: "POST",
+		         dataType: "JSON",
+		         data: "&csrfmiddlewaretoken={{csrf_token}}&"+botTournamentForm.formSerialize()
+		        }
+		       ).done(function(rs){if(rs.success) {botTournamentDialog.dialog("close"); botTourGrid.trigger("reloadGrid"); }else alert("Couldn't save");})
+
+		},
+		Cancel: function() 
+		{
+			$( this ).dialog( "close" );
+			botTournamentForm.resetForm();
+		}
+	}
+});
+
+function createModifyBotTournament(botTblId, e)
+{
+	botTournamentForm.resetForm();
+	
+	botTournamentFormCtx = $("#bot-tournament-form")
+	
+	if(botTblId != '' && botTblId != null)
+    {
+		//fill the form objects
+		var row = botTourGrid.getRowData(botTblId);
+		
+		$.each(row, function(e, v){$("#"+e, botTournamentFormCtx).val(v);})
+		$("input[name='enabledStatus'][value='"+row.enabledStatus+"']", botTournamentFormCtx).selected(true)
+		tAddOn = 0;
+		if(row.addon == 'YES') tAddOn = 1
+		$("input[name='addOn'][value='"+tAddOn+"']", botTournamentFormCtx).selected(true)
+		$("select[name='strategy'] > option[value='"+row.strategy+"']", botTournamentFormCtx).selected(true)
+		
+		$("#id", botTournamentFormCtx).val(botTblId)
+    }
+	
+	botTournamentDialog.dialog("open");
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+</script>

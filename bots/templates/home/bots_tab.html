@@ -1,0 +1,44 @@
+
+<div class="bots">
+
+	<form id="searchForm" action="home/bots_grid" method="POST" class="search-form" style="display:none;">
+	 {% csrf_token %}
+	 <table border="0">
+	  <tr>
+	   <td><label for="botName">Bot: &nbsp;</label><input id="botName" name="botName"/></td>
+	   
+	   <td><label for="tableName">Table: &nbsp;</label><input id="tableName" name="tableName"/></td>
+	   
+	   <td>
+	     <label for="Status">Status: &nbsp;</label>
+			<span id="statusSet">
+				<input type="radio" id="botStatus1" name="botStatus" value="reduced"/><label for="botStatus1">Enabled</label>
+				<input type="radio" id="botStatus2" name="botStatus" value="increased"/><label for="botStatus2">Disabled</label>
+				<input type="radio" id="botStatus4" name="botStatus" value="increased"/><label for="botStatus4">On Table</label>
+				<input type="radio" id="botStatus3" name="botStatus" checked="checked" value="none" /><label for="botStatus3">Any</label>
+	       </span>
+	   </td>
+	  </tr>
+	  
+	  <tr align="right">
+	   <td colspan="3"><input type="submit" value="Search"/></td>
+	  </tr>
+	 </table>
+	</form>
+	
+	<hr/>
+	<br>
+	<div id="bot-grid">
+	
+	</div>
+</div>
+
+<script>
+	$(function() {
+		$( "#statusSet" ).buttonset();
+		$( "input[type='submit']" ).button();
+		
+		$("#searchForm").ajaxForm({target:'#bot-grid'});
+		$("#searchForm").submit();
+	});
+</script>

@@ -1,0 +1,197 @@
+ body .content, body .header, body .footer
+{
+	margin: auto;
+    padding: 0;
+    font-size: 80%;
+}
+
+body .footer
+{
+	
+}
+
+/* ajax */
+.result-ajax
+{
+	font-size: 9pt;
+}
+.result-ajax-success
+{
+	color:green;
+}
+.result-ajax-error
+{
+	color: red;
+}
+
+/* error markup css*/
+
+input.error, select.error
+{
+	border: 1px dotted red;
+}
+
+label.error
+{
+	color: red;
+    font-style: italic;
+    font-size: 9pt;
+}
+
+/*Ajax assets*/
+.ui-autocomplete-loading 
+{
+	background: white url('/static/images/ui-anim_basic_16x16.gif') right center no-repeat;
+}
+
+/*django auto generated forms*/
+.errorlist
+{
+	color: red;
+}
+
+.auth_area
+{
+	margin-left: auto;
+	margin-right: auto;
+	display: table-cell;
+	align: center;
+}
+
+.progressZone
+{
+	text-align: center;
+}
+
+.bots .search-form table td
+{
+	padding-left: 25px;
+}
+.row_btn
+{
+ font-size: 7pt !important;
+}
+
+.monitor_btn
+{
+ font-size: 10pt !important;	
+}
+
+
+
+.monitor-area
+{
+	position: relative;
+}
+
+.monitor-area ul
+{
+	margin: 0px;
+}
+
+.monitored-table
+{
+	background-image: url(/static/images/pokertable.png);
+	background-color: gray;
+	background-repeat: no-repeat;
+	width: 650px;
+	height:  425px;
+	position: relative;
+	float: left;
+	margin: 2px;
+}
+.monitored-table .table-name
+{
+    color: white;
+    left: 240px;
+    position: absolute;
+    top: 260px;
+}
+
+.monitored-table .seat
+{
+    color: white;
+    font-size: 9pt;
+    text-align: center;
+}
+
+.monitored-table .seat img
+{
+ 	width: 35px;
+ 	height: 49px;
+}
+
+.monitored-table .empty-seat
+{
+	background-image: url(/static/images/empty-seat.png);
+	background-repeat: no-repeat;
+	width: 98px;
+	height: 68px;
+}
+
+.monitored-table li
+{
+	position: absolute;
+	list-style: none;
+}
+
+.monitored-table li:nth-child(1)
+{
+    left: 400px;
+    top: 30px;
+}
+
+.monitored-table li:nth-child(2)
+{
+    left: 550px;
+    top: 130px;
+}
+
+.monitored-table li:nth-child(3)
+{
+    left: 550px;
+    top: 240px;
+}
+
+.monitored-table li:nth-child(4)
+{
+    left: 450px;
+    top: 320px;
+}
+
+.monitored-table li:nth-child(5)
+{
+    left: 270px;
+    top: 320px;
+}
+
+.monitored-table li:nth-child(6)
+{
+    left: 120px;
+    top: 320px;
+}
+
+.monitored-table li:nth-child(7)
+{
+    left: 25px;
+    top: 240px;
+}
+
+.monitored-table li:nth-child(8)
+{
+    left: 25px;
+    top: 130px;
+}
+
+.monitored-table li:nth-child(9)
+{
+    left: 150px;
+    top: 30px;
+}
+
+.chat-bar .select-bot > div
+{
+	vertical-align: top;
+	float: left;
+}
+

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta charset="utf-8"/>
+	
+	<title>{% block title %}{{APP_NAME}}{% endblock %}</title>
+	
+	<link rel="stylesheet" type="text/css" href="/static/style.css"></link>
+	
+	<script src="/static/jquery/jquery-1.7.2.js" type="text/javascript"></script>
+	
+	<!-- JQuery grid assets -->
+	<script src="/static/jquery/grid.locale-en.js" type="text/javascript"></script>
+	<script src="/static/jquery/jquery.jqGrid.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="/static/css/ui.jqgrid.css" />
+	
+	<!-- JQuery UI assets -->
+	<link rel="stylesheet" href="/static/css/themes/base/jquery.ui.all.css" type="text/css" ></link>
+	<!--
+	<link rel="stylesheet" href="/static/css/themes/flick/jquery-ui-1.8.2.custom.css" type="text/css" ></link>
+	    <link rel="stylesheet" href="/static/css/themes/base/jquery.ui.all.css" type="text/css"></link> 
+	 -->
+	 
+	<script src="/static/jquery/ui/jquery.ui.core.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/ui/jquery.ui.widget.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/ui/jquery.ui.mouse.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/ui/jquery.ui.sortable.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/ui/jquery.ui.button.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/ui/jquery.ui.position.min.js"></script>
+	<script src="/static/jquery/ui/jquery.ui.autocomplete.min.js"></script>
+	<script src="/static/jquery/ui/jquery.ui.tabs.min.js"></script>
+	<script src="/static/jquery/ui/jquery.ui.datepicker.min.js"></script>
+	<script src="/static/jquery/ui/jquery.ui.dialog.min.js"></script>
+	
+	<!--  JQuery validation assets -->
+	<script src="/static/jquery/jquery.validate.min.js" type="text/javascript"></script>
+	<script src="/static/jquery/jquery.form.js" type="text/javascript"></script>
+
+    <!-- Password strength meter assets-->
+    <script src="/static/jquery/jquery.pstrength-min.1.2.js" type="text/javascript"></script>
+    	
+	<!-- App assets -->
+	<script src="/static/js/ajax.tools.js" type="text/javascript"></script>
+	
+	<!-- JQuery tools assets -->
+	<script src="/static/jquery/jquery.tools.min.js"></script>
+	
+	<!-- JQuery ui time picker assets -->
+	<script src="/static/jquery/jquery.ui.timepicker.js"></script>
+	<link rel="stylesheet" href="/static/css/jquery.ui.timepicker.css" type="text/css"></link>
+		
+	{%block ScriptAndCSS%}{%endblock%}
+	
+</head>
+<body>
+    <div id="header" class="header">
+        {% block header %}{% endblock %}
+    </div>
+    
+    <div id="sidebar" class="sidebar">
+        {% block sidebar %}{% endblock %}
+    </div>
+
+    <div id="content" class="content">
+        {% block content %}{% endblock %}
+    </div>
+    
+
+    <div id="footer" class="footer">
+        {% block footer %}{% endblock %}
+    </div>
+</body>
+</html>

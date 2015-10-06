@@ -1,0 +1,46 @@
+{% extends "main.html" %}
+
+{% block title %}{{APP_NAME}} Login{% endblock %}
+
+{%block content %}
+
+<center>
+<div class="auth_area">
+		<form action="" method="POST" class="login_form" id="login_form">
+		{% csrf_token %}
+			<h1>Login</h1>
+			 {{form.as_p}}
+			<div width="100%">
+			   <table width="100%">
+			    <tr>
+			     <td align="right">
+			      <input type="submit" value="Log in" />
+			     </td>
+			    </tr>
+			   </table>
+			</div>
+		</form><!-- form -->
+</div>
+</center>
+<script>
+$(function() 
+{
+		$("#login_form").validate({
+			rules: {
+				password: "required",
+				username: "required"
+			},
+			messages: 
+			{
+				username: "Username is required",
+				password: "Password required"
+			}
+		});
+		
+		$("input:submit, input:reset").button()
+		
+		//Transform to UI-widget
+		$("#login_form th").each(function(idx, elem){$(elem).attr("align", "left")})
+});
+</script>
+{% endblock %}

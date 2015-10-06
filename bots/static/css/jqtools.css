@@ -1,0 +1,94 @@
+/*JQuery tools Tabs*/
+ul.tabs {
+    border-bottom: 1px solid #666666;
+    height: 30px;
+    list-style: none outside none;
+    margin: 0 !important;
+    padding: 0;
+}
+ul.tabs li {
+    float: left;
+    list-style-image: none !important;
+    margin: 0 !important;
+    padding: 0;
+    text-indent: 0;
+}
+ul.tabs a {
+    background: url("/media/img/tabs/blue.png") no-repeat scroll -420px 0 transparent;
+    color: #333333;
+    display: block;
+    font-size: 11px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    top: 1px;
+    width: 134px;
+}
+ul.tabs a:active {
+    outline: medium none;
+}
+ul.tabs a:hover {
+    background-position: -420px -31px;
+    color: #FFFFFF;
+}
+ul.tabs a.current, ul.tabs a.current:hover, ul.tabs li.current a {
+    background-position: -420px -62px;
+    color: #000000 !important;
+    cursor: default !important;
+}
+ul.tabs a.s {
+    background-position: -553px 0;
+    width: 81px;
+}
+ul.tabs a.s:hover {
+    background-position: -553px -31px;
+}
+ul.tabs a.s.current {
+    background-position: -553px -62px;
+}
+ul.tabs a.l {
+    background-position: -248px 0;
+    width: 174px;
+}
+ul.tabs a.l:hover {
+    background-position: -248px -31px;
+}
+ul.tabs a.l.current {
+    background-position: -248px -62px;
+}
+ul.tabs a.xl {
+    background-position: 0 0;
+    width: 248px;
+}
+ul.tabs a.xl:hover {
+    background-position: 0 -31px;
+}
+ul.tabs a.xl.current {
+    background-position: 0 -62px;
+}
+.panes .pane {
+    display: none;
+}
+
+/*JQuery tools panes*/
+
+.panes div {
+    -moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #FFFFFF;
+    border-color: -moz-use-text-color #999999 #999999;
+    border-right: 1px solid #999999;
+    border-style: none solid solid;
+    border-width: 0 1px 1px;
+    display: none;
+    font-size: 14px;
+    height: 100px;
+    padding: 15px 10px;
+}

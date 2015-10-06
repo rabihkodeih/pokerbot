@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+
+{% block title %} {{APP_NAME}} Home{% endblock %}
+
+
+{%block content %}
+
+<div class="home">
+
+	<div id="tabs">
+		<ul>
+			<li><a href="home/bots">View By Bots</a></li>
+			<li><a href="monitoring/bot_cards">Bots Monitoring</a></li>
+			<li><a href="chat/bots_chat">Bots Chat</a></li>
+			<li><a href="scheduler/scheduler_board">Schedule</a></li>
+		</ul>
+		
+	</div>
+</div>
+
+<script>
+	$(function() {
+		$( "#tabs" ).tabs({
+			ajaxOptions: {
+				error: function( xhr, status, index, anchor ) 
+				{
+					if(xhr.status == 404)
+						$( anchor.hash ).html("Not yet implemented" );
+					else
+						$( anchor.hash ).html("Couldn't load this tab" );
+				}
+			},
+			load: cleanPreviousTab,
+		});
+	});
+	
+	function cleanPreviousTab(event, ui)
+	{
+		$(".ui-tabs-hide")
+		 .each(function(index)
+				 {
+			      $(this).html("")
+				 }
+			  )
+		return true
+	}
+</script>
+
+{% endblock %}
+
+
+

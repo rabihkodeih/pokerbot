@@ -1,0 +1,352 @@
+{% load macros %}
+
+<table id="botsGrid" style="height:100%" ><tr><td/></tr></table> 
+<div id="actionBar"></div>
+
+<script type="text/javascript">
+$(function(){ 
+  botsGrid = $("#botsGrid").jqGrid({
+    url:'/bots/home/bots_grid_data?{% spaceless %} {% for k,v in POST.items %}&{{k}}={{v|urlencode}}{% endfor %}{%endspaceless%}',
+    datatype: 'xml',
+    mtype: 'GET',
+    colNames:['Actions', 'Nick Name', 'Password','Money Type', 'Enabled','Strategy','Status', 'MIN BB', 'MAX BB', 'Ratio to Exit', 'EnabledHidden', 'moneyTypeHidden'],
+    colModel :[
+      {name:'act', index:'act', width:150, align:'center'}, 
+      {name:'nick', index:'f_nick', width:100, align:'center'}, 
+      {name:'password', index:'f_password', width:60, align:'center'},
+      {name:'moneyTypeDisplay', index:'f_money_type', width:100, align:'center'},
+      {name:'enabled', index:'f_enabled', width:70, align:'center'},
+      {name:'strategy', index:'f_strategy', width:80, align:'center'},
+      {name:'status', index:'f_status', width:50, align:'center'},
+      {name:'minBB', index:'f_min_bb', width:60, align:'center'},
+      {name:'maxBB', index:'f_max_bb', width:60, align:'center'},
+      {name:'bbExit', index:'f_bb_exit', width:90, align:'center'},
+      {name:'enabledStatus', index:'f_enabled', hidden:true},
+      {name:'moneyType', index:'f_enabled', hidden:true},
+      
+    ],
+    pager: '#actionBar',
+    rowNum:25,
+    rowList:[10,25,100],
+    sortname: 'f_nick',
+    sortorder: 'asc',
+    viewrecords: true,
+    gridview: true,
+    caption: '',
+    multiselect:true,
+    height: '100%', width: '1200',
+    subGrid: true,
+    subGridRowExpanded: displaySubGrid,
+    gridComplete: processAfterGridLoad
+  })
+
+//adding the bottom bar buttons
+$('#botsGrid')
+    .navGrid('#actionBar',{edit:false,add:false,del:false,search:false, refresh:false, cloneToTop:true})
+    .navButtonAdd('#actionBar',
+			    {
+				   caption:"Add new Bot", 
+				   title: "Add a new bot to the system",
+				   buttonicon:"ui-icon-document-b", 
+				   onClickButton: function()
+						   { 
+						     createModifyBot(null, null);
+						   }, 
+				   position:"last"
+				})
+    .navButtonAdd('#actionBar',
+		    {
+			   caption:"Disable", 
+			   title: "Disable selected bots",
+			   buttonicon:"ui-icon-locked", 
+			   onClickButton: function()
+					   { 
+				 		  enableDisableMultiBots('disable');
+					   }, 
+			   position:"last"
+			})
+  .navButtonAdd('#actionBar',
+		    {
+			   caption:"Enable", 
+			   title: "Enalbe selected bots",
+			   buttonicon:"ui-icon-unlocked", 
+			   onClickButton: function()
+					   { 
+				   		enableDisableMultiBots('enable');
+					   }, 
+			   position:"last"
+			});
+}); 
+
+
+function processAfterGridLoad()
+{
+ $(".row_btn_modify").button({icons: {primary: "ui-icon-pencil"},text: true})
+ $(".row_btn_enable").button({icons: {primary: "ui-icon-stop"},text: true})
+ $(".row_btn_delete").button({icons: {primary: "ui-icon-close"},text: true})
+}
+
+/**
+ * Checks if bot enabled then disable it and vice versa
+ */
+function enableDisableBots(id, e)
+{
+	 var row = botsGrid.getRowData(id);
+	 var confirmed = false;
+	 var mode = null;
+
+	//console.debug("id:"+id+", "+ JSON.stringify(row));
+	
+	 if(row.enabledStatus == "1")
+	 {
+	  confirmed = confirm("If you disable bot: "+row.nick+" it will stop playing on all tables.\n\nAre you sure you want to disable it?")
+	  mode = "disable"
+	 }
+	 else
+	 {
+	  confirmed = confirm("Are you sure you want to enable bot: "+row.nick+"?")
+	  mode = "enable"
+	 }
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/home/enable_bot",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+id+"&mode="+mode
+	        }
+	       ).done(function(rs){if(rs.success) botsGrid.trigger("reloadGrid"); else alert("Couldn't save");})
+	 }
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+function enableDisableMultiBots(mode)
+{
+	 var ids = botsGrid.getGridParam('selarrrow');
+
+	 if(mode == 'disable')
+	 {
+	  confirmed = confirm("If you disable the selected bots they will stop playing on all tables.\n\nAre you sure you want to disable them?")
+	 }
+	 else
+	 {
+	  confirmed = confirm("Are you sure you want to enable the selected bots?")
+	 }
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/home/enable_bot",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+ids+"&mode="+mode
+	        }
+	       ).done(function(rs){if(rs.success) botsGrid.trigger("reloadGrid"); else alert("Couldn't save");})
+	 }
+}
+
+function deleteBots(ids)
+{
+	if(ids == null)
+	 ids = botsGrid.getGridParam('selarrrow');
+
+
+	var confirmed = false;
+	if(id != null && ids.length != 0)
+	 confirmed = confirm("Are you sure you want to delete the selected "+ids.length+ " bots?");
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/home/delete_bot",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+ids
+	        }
+	       ).done(function(rs){if(rs.success) botsGrid.trigger("reloadGrid"); else alert("Couldn't delete");})
+	 }
+}
+
+function displaySubGrid(tblId, rowId)
+{
+ $.ajax({
+         url: "/bots/home/bot_tables",
+         type: "POST",
+         dataType: "html",
+         data:"&csrfmiddlewaretoken={{csrf_token}}&id="+rowId
+        }
+       ).done(function(html){$("#"+tblId).html(html)})
+}
+</script>
+
+<!-- New/Modify bot form and scripts -->
+<div id="edit-form-div" title="Edit Bot" style="display:none" >
+	<form id="bot-form">
+		  <table>
+		   <tr>
+		    <td><label for="nick">Nickname</label></td><td><input name="nick" id="nick" title="You can add many bots via separating them by comma"/></td>
+		   </tr>
+		   <tr id="tablesZone">
+		    <td><label for="tables">Tables</label></td><td><input name="tables" id="tables" title="You can assign more than one table via separating them by comma"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="password">Password</label></td><td><input name="password" id="password"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="moneyType">Money Type</label></td>
+		    <td>
+		     <select name="moneyType">
+		      <option value="R">Real</option>
+		      <option value="P">Play</option>
+		     </select>
+		    </td>
+		   </tr>
+		   <tr>
+		    <td><label for="enabledStatus">Enabled</label></td>
+		     <td>
+		      	<div id="statusSet">
+					<input type="radio" id="statusEnabled" name="enabledStatus" value="1"/><label for="statusEnabled">Enabled</label>
+					<input type="radio" id="statusDisabled" name="enabledStatus" value="0" /><label for="statusDisabled">Disabled</label>
+				</div>
+		     </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="strategy">Strategy</label></td>
+		    <td>
+		     <select name="strategy">
+		      <option value="tight-xp">Tight-XP</option>
+		      <option value="loose-xp">Loose-XP</option>
+		      <option value="tournament">Tournament</option>
+		      <option value="tight-xp-stats">Tight-XP Stats</option>
+		      <option value="loose-xp-stats">Loose-XP Stats</option>
+		      <option value="tournament-stats">Tournament Stats</option>
+		      <option value="loose">Loose</option>
+		      <option value="tight">Tight</option>
+		      <option value="smart">Smart</option>
+		      <option value="random">Test: Random</option>
+		      <option value="betcall">Test: BetCall</option>
+		      <option value="checkcall">Test: CheckCall</option>
+		      <option value="allin">Test: AllIN</option>
+		     </select>
+		    </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="minBB">MIN BB</label></td><td><input name="minBB" id="minBB"/></td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="maxBB">MAX BB</label></td><td><input name="maxBB" id="maxBB"/></td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="bbExit">Exit On x times Intial stack</label></td><td><input name="bbExit" id="bbExit"/></td>
+		   </tr>
+		  </table>
+		  <input type="hidden" name="id" id="id"/>
+	</form>
+	<div id="botFormError"/>
+</div>
+
+<script>
+
+$("#bot-form").validate({
+	rules: {
+		minBB: {number:true, min:0},
+		maxBB: {number:true, min:0},
+		bbExit: {number:true, min:0},
+		nick: "required", password: "required", enabledStatus: "required"
+		
+	},
+	messages: 
+	{
+		minBB: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		maxBB: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		bbExit: {
+			 number: "Invalid Number for MIN BB",
+			 min: "MIN BB should be bigger or equals to 0"
+			},
+		nick: "Required nickname",
+		password: "Required password",
+		enabledStatus: "Required Enabled/Disabled"
+	},
+	submitHandler: function(){return false;},
+	errorLabelContainer: "#botFormError",
+	wrapper: "li"
+});
+
+var botForm = $("#bot-form");
+
+var botDialog = $("#edit-form-div" ).dialog({
+	resizable: false,
+	height:500, width: 400,
+	modal: true,
+	autoOpen: false,
+	buttons: {
+		"Save": function() 
+		{ 
+			if(!botForm.valid())
+				 return;
+			
+			 $.ajax({
+		         url: "/bots/home/save_bot",
+		         type: "POST",
+		         dataType: "JSON",
+		         data: "&csrfmiddlewaretoken={{csrf_token}}&"+botForm.formSerialize()
+		        }
+		       ).done(function(rs){if(rs.success) {botDialog.dialog("close"); botsGrid.trigger("reloadGrid"); }else alert("Couldn't save");})
+
+		},
+		Cancel: function() 
+		{
+			$( this ).dialog( "close" );
+			botForm.resetForm();
+		}
+	}
+});
+
+function createModifyBot(botId, e)
+{
+	botForm.resetForm();
+	
+	botFormCtx = $("#bot-form")
+	
+	if(botId != '' && botId != null)
+    {
+		//fill the form objects
+		var row = botsGrid.getRowData(botId);
+		
+		$.each(row, function(e, v){$("#"+e, botFormCtx).val(v);})
+		$("input[name='enabledStatus'][value='"+row.enabledStatus+"']", botFormCtx).selected(true)
+		$("select[name='moneyType'] > option[value='"+row.moneyType+"']", botFormCtx).selected(true)
+		$("select[name='strategy'] > option[value='"+row.strategy+"']", botFormCtx).selected(true)
+		
+		$("#id", botFormCtx).val(botId)
+		
+		$("#tablesZone", botFormCtx).css('display', 'none');
+    }
+	else
+	{
+		$("#tablesZone", botFormCtx).css('display', '');
+	}
+	
+	botDialog.dialog("open");
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+</script>

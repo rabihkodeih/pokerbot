@@ -1,0 +1,6 @@
+<div>
+ Pending messages <button class="chat_btn" onclick="loadPendingMsgs()">Refresh List</button><br>
+ {% for msg in chats %}
+  {{msg.f_bot_nick}}, {{msg.f_table_name}} --> {{msg.f_message}}<br/>
+ {% endfor %}
+</div>

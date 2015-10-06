@@ -1,0 +1,250 @@
+{% load macros %}
+
+<table id="scheduleGrid" style="height:100%" ><tr><td/></tr></table> 
+<div id="actionBarScheduler"></div>
+
+<div id="edit-form-div" title="Edit Schedule" style="display:none" >
+	<form id="schedule-form">
+		  <table>
+		   <tr>
+		    <td><label for="nick">Schedule Name</label></td><td><input name="name" id="name" placeholder="Name to identify your schedules"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="from_time">From Time</label></td><td><input name="from_time" id="from_time" title="Time from when this schedule is applied (24h format)" placeholder="e.g. 10:00"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="to_time">To Time</label></td><td><input name="to_time" id="to_time" title="Time after it this schedule is not applied (24h format)" placeholder="e.g. 21:00"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="enabledStatus">Enabled</label></td>
+		     <td>
+		      	<div id="statusSet">
+					<input type="radio" id="statusEnabled" name="enabledStatus" value="1"/><label for="statusEnabled">Enabled</label>
+					<input type="radio" id="statusDisabled" name="enabledStatus" value="0" /><label for="statusDisabled">Disabled</label>
+				</div>
+		     </td>
+		   </tr>
+		   
+		   <tr>
+		    <td><label for="num_bots">Num Active Bots</label></td><td><input name="num_bots" id="num_bots"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="tables">Tables</label></td><td><input name="tables" id="tables" placeholder="Tables to follow this schedule. Tables are comma separated"/></td>
+		   </tr>
+		   <tr>
+		    <td><label for="bots">Bots</label></td><td><input name="bots" id="bots" placeholder="Bots to follow this rule. Bots are comma separated"/></td>
+		   </tr>
+		  </table>
+		  <input type="hidden" name="id" id="id"/>
+	</form>
+	<div id="formError"/>
+</div>
+
+<script type="text/javascript">
+$(function(){ 
+  scheduleGrid = $("#scheduleGrid").jqGrid({
+    url:'/bots/scheduler/schedule_grid_data?{% spaceless %} {% for k,v in POST.items %}&{{k}}={{v|urlencode}}{% endfor %}{%endspaceless%}',
+    datatype: 'xml',
+    mtype: 'GET',
+    colNames:['Actions', 'Schedule Name', 'From Time', 'To Time', 'Enabled','Num Bots', 'Tables', 'Bots Pool', 'Enabled Hidden'],
+    colModel :[
+      {name:'act', index:'act', width:150, align:'center'}, 
+      {name:'name', index:'f_name', width:100, align:'center'}, 
+      {name:'from_time', index:'f_from_time', width:60, align:'center'},
+      {name:'to_time', index:'f_to_time', width:60, align:'center'},
+      {name:'enabled', index:'f_enabled', width:70, align:'center'},
+      
+      {name:'num_bots', index:'f_num_bots', width:100, align:'center'},
+      
+      {name:'tables', index:'f_tables', width:200, align:'center'},
+      {name:'bots', index:'f_nicks', width:300, align:'center'},
+      
+      {name:'enabledStatus', index:'f_enabled', hidden:true},
+    ],
+    pager: '#actionBarScheduler',
+    rowNum:25,
+    rowList:[10,25,100],
+    sortname: 'f_name',
+    sortorder: 'asc',
+    viewrecords: true,
+    gridview: true,
+    caption: '',
+    multiselect:true,
+    height: '100%', width: '1500',
+    gridComplete: processAfterGridLoad
+  })
+
+//adding the bottom bar buttons
+$('#scheduleGrid')
+    .navGrid('#actionBarScheduler',{edit:false,add:false,del:false,search:false, refresh:false, cloneToTop:true})
+    .navButtonAdd('#actionBarScheduler',
+			    {
+				   caption:"Add new Schedule", 
+				   title: "Add a new Scheduling entry",
+				   buttonicon:"ui-icon-document-b", 
+				   onClickButton: function()
+						   { 
+						     createModifySchedule(null, null);
+						   }, 
+				   position:"last"
+				})
+    .navButtonAdd('#actionBarScheduler',
+		    {
+			   caption:"Disable", 
+			   title: "Disable selected Scheduling Entries",
+			   buttonicon:"ui-icon-locked", 
+			   onClickButton: function()
+					   { 
+				 		  enableDisableShcedule('disable');
+					   }, 
+			   position:"last"
+			})
+  .navButtonAdd('#actionBarScheduler',
+		    {
+			   caption:"Enable", 
+			   title: "Enalbe selected Scheduling Entries",
+			   buttonicon:"ui-icon-unlocked", 
+			   onClickButton: function()
+					   { 
+				  		 enableDisableShcedule('enable');
+					   }, 
+			   position:"last"
+			});
+}); 
+
+
+function processAfterGridLoad()
+{
+ $(".row_btn_modify").button({icons: {primary: "ui-icon-pencil"},text: true})
+ $(".row_btn_enable").button({icons: {primary: "ui-icon-stop"},text: true})
+ $(".row_btn_delete").button({icons: {primary: "ui-icon-close"},text: true})
+}
+
+function enableDisableShcedule(mode, ids, e)
+{
+	
+	 
+	 if (typeof ids == "undefined")
+		 ids = scheduleGrid.getGridParam('selarrrow');
+
+	 if (mode == null)
+	 {
+		 var row = scheduleGrid.getRowData(ids);
+		 mode = row.enabledStatus == "1" ? 'disable' : 'enable' 
+	 }
+	 
+	 if(mode == 'disable')
+	 {
+	  confirmed = confirm("If you disable the selected schedules?")
+	 }
+	 else if (mode == 'delete')
+	 {
+	  confirmed = confirm("Are you sure you want to delete the selected schedules?") 
+	 }
+	 else
+	 {
+	  confirmed = confirm("Are you sure you want to enable the selected schedules?")
+	 }
+	 
+	 if(confirmed)
+	 {
+		 $.ajax({
+	         url: "/bots/scheduler/enable_schedule",
+	         type: "POST",
+	         dataType: "JSON",
+	         data: "&csrfmiddlewaretoken={{csrf_token}}&id="+ids+"&mode="+mode
+	        }
+	       ).done(function(rs){if(rs.success) scheduleGrid.trigger("reloadGrid"); else alert("Couldn't save");})
+	 }
+	 
+	 if(typeof e != 'undefined' && e)
+		  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+
+$("#schedule-form").validate({
+	rules: {
+		num_bots: {number:true, min:0, required:true},
+		name: "required", from_time: "required", to_time: "required", enabledStatus: "required"
+		
+	},
+	messages: 
+	{
+		num_bots: {
+			 number: "Invalid Number for Num Bots",
+			 min: "Num bots should be bigger or equals to 0",
+			 required: "Number of Active bots is missing"
+			},
+		name: "Required Name",
+		from_time: "Required From Time",
+		to_time: "Required To Time",
+		enabledStatus: "Required Enabled/Disabled"
+	},
+	submitHandler: function(){return false;},
+	errorLabelContainer: "#formError",
+	wrapper: "li"
+});
+
+var zForm = $("#schedule-form");
+
+var frmDialog = $("#edit-form-div" ).dialog({
+	resizable: false,
+	height:500, width: 400,
+	modal: true,
+	autoOpen: false,
+	open:function(event, ui){$('input[name="from_time"], input[name="to_time"]').timepicker({})},
+	buttons: {
+		"Save": function() 
+		{ 
+			if(!zForm.valid())
+				 return;
+			
+			 $.ajax({
+		         url: "/bots/scheduler/save_schedule",
+		         type: "POST",
+		         dataType: "JSON",
+		         data: "&csrfmiddlewaretoken={{csrf_token}}&"+zForm.formSerialize()
+		        }
+		       ).done(function(rs){if(rs.success) {frmDialog.dialog("close"); scheduleGrid.trigger("reloadGrid"); }else alert("Couldn't save");})
+
+		},
+		Cancel: function() 
+		{
+			$( this ).dialog( "close" );
+			zForm.resetForm();
+		}
+	}
+});
+
+function createModifySchedule(frmId, e)
+{
+	zForm.resetForm();
+	
+	zFormCtx = $("#schedule-form")
+	
+	if(frmId != '' && frmId != null)
+    {
+		//fill the form objects
+		var row = scheduleGrid.getRowData(frmId);
+		
+		$.each(row, function(e, v){$("#"+e, zFormCtx).val(v);})
+		$("input[name='enabledStatus'][value='"+row.enabledStatus+"']", zFormCtx).selected(true)
+		
+		$("#id", zFormCtx).val(frmId)
+    }
+	else
+	{
+		$("#id", zFormCtx).val('')		
+	}
+	
+	frmDialog.dialog("open");
+	
+	 if(e)
+	  e.stopPropagation()
+	 else if(window.event)
+	  window.event.cancelBubble = true
+}
+
+</script>

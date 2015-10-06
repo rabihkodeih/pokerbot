@@ -1,0 +1,35 @@
+<?xml version ="1.0" encoding="utf-8"?>
+<rows>
+  <page>{{page}}</page>
+  <total>{{totalPages}}</total>
+  <records>{{totalRecords}}</records>
+
+  {% for botTable in grid %}
+	   <row id='{{botTable.id}}'>
+	       <cell><![CDATA[{% spaceless %}
+	            <button class="row_btn row_btn_enable" onclick="enableDisableBotTable('{{botTable.id}}', event, 'status')">{% if botTable.f_enabled = 1 %}Disable{%else%}Enable{%endif%}</button>
+	            <button class="row_btn row_btn_delete" onclick="enableDisableBotTable('{{botTable.id}}', event, 'delete')">Delete</button>
+	        	<button class="row_btn row_btn_modify" onclick="createModifyBotTable('{{botTable.id}}', event)">Modify</button>
+	            {% endspaceless %}]]></cell>
+	       <cell>{{botTable.f_table_name}}</cell>
+	       {% spaceless %}
+	        <cell>
+	            <![CDATA[{% spaceless %}
+	            {% if botTable.f_enabled = 1 %}<img src="/static/images/verified.png"/>
+	            {% else %}<img src="/static/images/unverified.png"/>
+	            {% endif %}
+	            {% endspaceless %}]]>
+	        </cell>
+	       {% endspaceless %}
+	       <cell>{{botTable.f_strategy}}</cell>
+	       <cell>{% if botTable.f_status = 0 %}OK{%else%} {{botTable.f_status}} {%endif%}</cell>
+	       <cell>{{botTable.f_min_bb}}</cell>
+	       <cell>{{botTable.f_max_bb}}</cell>
+	       <cell>{{botTable.f_bb_exit}}</cell>
+	       <cell>{{botTable.f_last_enter_time}}</cell>
+	       <cell>{{botTable.f_last_exit_time}}</cell>
+	       
+	       <cell>{{botTable.f_enabled}}</cell>
+	  </row>
+ {% endfor %}
+ </rows>

@@ -1,0 +1,56 @@
+
+<div class="chat-bar">
+
+  <div class="select-bot">
+   <div>
+	Select BOT 
+		<select id="bot">
+			{% for bot in bots %}
+			 <option value="{{bot.f_nick}}">{{bot.f_nick}}</option>
+			{% endfor %}
+		</select>
+
+	Select Table 
+		<select id="table">
+			{% for tbl in tables %}
+			 <option value="{{tbl}}">{{tbl}}</option>
+			{% endfor %}
+		</select>
+  </div>
+ 
+  <textarea name="chat-msg" id="chat-msg" placeholder="Type bot message here"></textarea>
+  <button class="chat_btn" onclick="sendChatMsg()">Send Message</button>
+  </div>
+  
+</div>
+
+ <hr/>
+ 
+<div class="chat-area" id="chat-area">
+
+</div>
+
+<script>
+
+ 
+ function sendChatMsg()
+ {
+  var msg = $("#chat-msg").val();
+  if(msg.trim() != '')
+  {
+	  $("#chat-area").load("chat/send_chat?msg="+escape(msg)+"&bot="+escape($("#bot").val())+"&table="+escape($("#table").val()))
+	   $("#chat-msg").val("")
+  }
+  else
+  {
+   alert("Please select a bot, table and enter a message to send")
+  }
+ }
+ 
+ function loadPendingMsgs()
+ {
+  $("#chat-area").load("chat/send_chat?msg=&bot=&table=")
+ }
+ 
+ loadPendingMsgs();
+</script>

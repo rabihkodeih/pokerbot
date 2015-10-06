@@ -1,0 +1,51 @@
+
+<div class="monitor-bar">
+  <div class="select-table">
+	Select table to Monitor: 
+		<select id="tblToMonitor">
+			{% for tbl in tables %}
+			 <option value="{{tbl}}">{{tbl}}</option>
+			{% endfor %}
+		</select>
+		
+		<button class="monitor_btn" onclick="startMonitorTable()">Monitor</button>
+		&nbsp;
+		<button class="monitor_btn" onclick="stopMonitorTable($('#tblToMonitor').val())">Stop</button>
+  </div>
+</div>
+
+ <hr/>
+ 
+<div class="monitor-area" id="monitor-area">
+
+ other cotantes here
+</div>
+
+<script>
+
+ function loadMonitoredTables()
+ {
+  $("#monitor-area").load("monitoring/monitored_tables")
+ }
+ 
+ loadMonitoredTables();
+ 
+ setInterval(loadMonitoredTables, 750);
+ 
+ function startMonitorTable()
+ {
+  var tbl = $("#tblToMonitor").val();
+  if(tbl.trim() != '')
+  {
+	  $("#monitor-area").load("monitoring/monitor_table?tblToMonitor="+tbl) 
+  }
+ }
+ 
+ function stopMonitorTable(tbl)
+ {
+  if(tbl.trim() != '')
+  {
+	  $("#monitor-area").load("monitoring/stop_table?tbl="+tbl) 
+  }
+ }
+</script>

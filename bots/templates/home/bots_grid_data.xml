@@ -1,0 +1,36 @@
+<?xml version ="1.0" encoding="utf-8"?>
+<rows>
+  <page>{{page}}</page>
+  <total>{{totalPages}}</total>
+  <records>{{totalRecords}}</records>
+
+  {% for bot in grid %}
+	   <row id='{{bot.id}}'>
+	       <cell><![CDATA[{% spaceless %}
+	            <button class="row_btn row_btn_enable" onclick="enableDisableBots('{{bot.id}}', event)">{% if bot.f_enabled = 1 %}Disable{%else%}Enable{%endif%}</button>
+	        	<button class="row_btn row_btn_modify" onclick="createModifyBot('{{bot.id}}', event)">Modify</button>
+	        	<button class="row_btn row_btn_delete" onclick="deleteBots(['{{bot.id}}'], event)">Delete</button>
+	            {% endspaceless %}]]></cell>
+	       <cell>{{bot.f_nick}}</cell>
+	       <cell>{{bot.f_password}}</cell>
+	       <cell>{% if bot.f_money_type = "R" %}REAL{%else%}PLAY{%endif%}</cell>
+	       {% spaceless %}
+	        <cell>
+	            <![CDATA[{% spaceless %}
+	            {% if bot.f_enabled = 1 %}<img src="/static/images/verified.png"/>
+	            {% else %}<img src="/static/images/unverified.png"/>
+	            {% endif %}
+	            {% endspaceless %}]]>
+	        </cell>
+	       {% endspaceless %}
+	       <cell>{{bot.f_strategy}}</cell>
+	       <cell>{% if bot.f_status = 0 %}OK{%else%} {{bot.f_status}} {%endif%}</cell>
+	       <cell>{{bot.f_min_bb}}</cell>
+	       <cell>{{bot.f_max_bb}}</cell>
+	       <cell>{{bot.f_bb_exit}}</cell>
+	       
+	       <cell>{{bot.f_enabled}}</cell>
+	       <cell>{{bot.f_money_type}}</cell>
+	  </row>
+ {% endfor %}
+ </rows>
